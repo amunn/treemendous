@@ -118,8 +118,17 @@ class Node:
             "children": [c.to_dict() for c in self.children],
         }
 
-    def to_qtree(self) -> str:
-        def _qtree(node: Node, parser: HTMLParser, level: int = 0) -> str:
+    def to_latex(self,treepackage) -> str:
+        if treepackage == "qtree":
+            dot = "."
+            preamble = "\\Tree"
+            postamble = ""
+        else:
+            dot = ""
+            preamble = "\\begin{forest}\n"
+            postamble = "\\end{forest}"
+
+        def _latex(node: Node, parser: HTMLParser, level: int = 0) -> str:
             parser.reset()
             parser.feed(node.label)
             parser.close()
@@ -132,18 +141,21 @@ class Node:
             else:
                 val = None
             leaf = not node.children and level > 0
-            res = "  " * level + f"{'[.' if not leaf else ''}{lbl}"
+            res = "  " * level + f"{'['}{dot}{lbl}"
             if val:
-                res += f"\\\\{val}"
+                res += f"\\\\{val} ]"
             res += "\n"
             for c in node.children:
-                res += _qtree(c, parser, level + 1)
-            if not leaf:
+                res += _latex(c, parser, level + 1)
+            if not leaf and level != 0:
                 res += "  " * level + "]\n"
+            else:
+                if level == 0:
+                    res += " " + "]\n"
             return res
 
         parser = GVParser()
-        return "\\Tree " + _qtree(self, parser)
+        return  preamble + _latex(self, parser) + postamble
 
     def to_graphviz(
         self,
@@ -338,11 +350,15 @@ class Tree:
         self.dirty = False
         self.last_path = path
 
-    def qtree(self) -> str:
-        "Renders this tree as LaTeX (dependant on qtree) markup."
+    def latex(self,treepackage) -> str:
+        if treepackage == "qtree":
+            option = ""
+        else:
+            option = "[linguistics]"
+        "Renders this tree as LaTeX (dependent on" + treepackage + " markup."
         # Translators: The comment added at the top of a LaTeX document. The \usepackage{qtree} is LaTeX code that should not be translated.
-        COMMENT = _("Add \\usepackage{qtree} to the preamble of your document.")
-        return f"% {COMMENT}\n\n{self.root.to_qtree()}"
+        COMMENT = _("Add \\usepackage"+ option +"{" + treepackage +"} to the preamble of your document.")
+        return f"% {COMMENT}\n\n{self.root.to_latex(treepackage)}"
 
     def graphviz(self, path: str = None, dpi: Optional[int] = None) -> None:
         "Renders this tree as a .png image using Graphviz."

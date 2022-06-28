@@ -157,22 +157,22 @@ class TestNode(unittest.TestCase):
 
     def test_qtree_simple(self):
         self.assertEqual(
-            Node.from_dict(TestNode.SIMPLE_TREE_DICT).to_qtree(), TestNode.SIMPLE_QTREE
+            Node.from_dict(TestNode.SIMPLE_TREE_DICT).to_latex("qtree"), TestNode.SIMPLE_QTREE
         )
 
     def test_qtree_degenerate(self):
-        self.assertEqual(Node(label="root").to_qtree(), "\Tree [.root\n]\n")
+        self.assertEqual(Node(label="root").to_latex("qtree"), "\Tree [.root\n]\n")
 
     def test_qtree_bold(self):
         self.assertEqual(
-            Node(label="<b>root</b>").to_qtree(), "\Tree [.\\textbf{root}\n]\n"
+            Node(label="<b>root</b>").to_latex("qtree"), "\Tree [.\\textbf{root}\n]\n"
         )
 
     def test_qtree_bold_unclosed(self):
-        self.assertEqual(Node(label="<b>root").to_qtree(), "\Tree [.<b>root\n]\n")
+        self.assertEqual(Node(label="<b>root").to_latex("qtree"), "\Tree [.<b>root\n]\n")
 
     def test_qtree_bold_unopened(self):
-        self.assertEqual(Node(label="root</b>").to_qtree(), "\Tree [.root</b>\n]\n")
+        self.assertEqual(Node(label="root</b>").to_latex("qtree"), "\Tree [.root</b>\n]\n")
 
 
 if __name__ == "__main__":

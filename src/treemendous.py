@@ -336,6 +336,18 @@ class Editor(wx.Frame):
         )
         view.Append(self.qtreeMenuItem)
 
+        self.forestMenuItem = wx.MenuItem(
+            view,
+            wx.ID_ANY,
+            # Translators: An item in the "view" menu.
+            _("La&TeX (Forest)"),
+            _(
+                # Translators: Help text for "LaTeX" in the view menu.
+                "Show this tree as source code suitable for pasting into a LaTeX document. Requires that the forest package be included in the document preamble with the [linguistics] option."
+            ),
+        )
+        view.Append(self.forestMenuItem)
+
         help = wx.Menu()
         about = wx.MenuItem(
             help,
@@ -405,6 +417,7 @@ class Editor(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnViewVisual, self.viewVisualMenuItem)
         self.Bind(wx.EVT_MENU, self.OnToggleNotes, self.NotesCheckBox)
         self.Bind(wx.EVT_MENU, self.OnQtree, self.qtreeMenuItem)
+        self.Bind(wx.EVT_MENU, self.OnForest, self.forestMenuItem)
         self.Bind(wx.EVT_MENU, self.OnAbout, id=wx.ID_ABOUT)
         self.Bind(wx.EVT_CLOSE, self.QuitApplication)
 
@@ -463,6 +476,7 @@ class Editor(wx.Frame):
 
         self.viewVisualMenuItem.Enable(not self.tree.is_empty)
         self.qtreeMenuItem.Enable(not self.tree.is_empty)
+        self.forestMenuItem.Enable(not self.tree.is_empty)
 
         if not self.treectrl:
             self.InitTree()
@@ -893,7 +907,16 @@ class Editor(wx.Frame):
         dlg = ReadOnlyViewDialog(
             # Translators: The title of a dialog displaying LaTeX source code for the currently opened tree.
             _("LaTeX source"),
-            self.tree.qtree(),
+            self.tree.latex("qtree"),
+        )
+        dlg.ShowModal()
+        dlg.Destroy()
+
+    def OnForest(self, event):
+        dlg = ReadOnlyViewDialog(
+            # Translators: The title of a dialog displaying LaTeX source code for the currently opened tree.
+            _("LaTeX source"),
+            self.tree.latex("forest"),
         )
         dlg.ShowModal()
         dlg.Destroy()
